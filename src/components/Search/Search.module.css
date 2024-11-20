@@ -1,0 +1,17 @@
+.search_main_box
+{
+
+    background-color: rgb(36, 117, 144) !important;
+}
+.input_main_box
+{
+    width: 80% !important
+}
+
+/* this is for seaching data from the input box */
+
+.search_input_box
+{
+    width: 100% !important;
+
+}

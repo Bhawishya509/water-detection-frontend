@@ -1,0 +1,21 @@
+*
+{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+.map_main_container {
+    width: 100%; 
+    height: 80vh; 
+    display: flex;
+    justify-content: center;
+    overflow: hidden; 
+    position: relative;
+    margin-top: 5px;
+}
+
+.map_box {
+    width: 100%; 
+    height: 100%;
+    position: relative;
+}
