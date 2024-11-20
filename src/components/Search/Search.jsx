@@ -16,8 +16,12 @@ import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import SearchCss from "./Search.module.css"  // for custom css styles
-
+import axios from "axios"
 import { FcGoogle } from "react-icons/fc";  // google icon for login and sign up
+
+
+import { useDispatch } from 'react-redux'  // redux
+import { loction_taking_rudux} from '../../store_redux/Rudux_data'
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -62,9 +66,38 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 function SearchFeatures() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+ 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+const [data_from_user,Set_data_from_user]=React.useState();
+
+  
+  
+   const dispatch = useDispatch()  // for calling function from redux and send data to him
+
+
+  const Data_processing_from_user = (e) => {
+    console.log("first");
+    const { name, value } = e.target;
+    Set_data_from_user(value);
+  
+   
+  };
+
+
+  const Data_Searching = async(e) =>
+  {
+    if (e.key == "Enter") {
+      let resp = await axios.get(`https://nominatim.openstreetmap.org/search?q=${data_from_user}&format=json&limit=1`)
+
+      let apidata=[Number(resp.data[0].lat),Number(resp.data[0].lon)]
+      dispatch(loction_taking_rudux(apidata))
+      console.log(resp)
+      
+    }
+  }
+
+
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -197,6 +230,9 @@ function SearchFeatures() {
                         className={SearchCss.search_input_box}
               placeholder="Search…"
               inputProps={{ "aria-label": "search" }}
+              value={data_from_user}
+              onChange={Data_processing_from_user}
+              onKeyDown={Data_Searching}
             />
           </Search>
           <Box sx={{ flexGrow: 1 }} />
