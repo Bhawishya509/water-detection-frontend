@@ -21,7 +21,7 @@ import { FcGoogle } from "react-icons/fc";  // google icon for login and sign up
 
 
 import { useDispatch } from 'react-redux'  // redux
-import { loction_taking_rudux} from '../../store_redux/Rudux_data'
+import { loction_taking_rudux,city_name_set} from '../../store_redux/Rudux_data'
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -69,7 +69,7 @@ function SearchFeatures() {
  
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-const [data_from_user,Set_data_from_user]=React.useState();
+const [data_from_user,Set_data_from_user]=React.useState("Dehri");
 
   
   
@@ -77,21 +77,241 @@ const [data_from_user,Set_data_from_user]=React.useState();
 
 
   const Data_processing_from_user = (e) => {
-    console.log("first");
     const { name, value } = e.target;
     Set_data_from_user(value);
-  
+     
    
   };
+
+
+// this is use to when ever the user type city name and enter then they search city near water
+
+
+  const all_water_place_find=async(cityName=data_from_user,maxDistanceKm=20)=>
+  {
+    async function getCityCoordinates(cityName) {
+      const url = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cityName)}&format=json&limit=1`;
+  
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+  
+        if (data.length > 0) {
+          return {
+            lat: parseFloat(data[0].lat),
+            lon: parseFloat(data[0].lon),
+          };
+        }
+        throw new Error("City not found");
+      } catch (error) {
+        console.error("Error fetching city coordinates:", error);
+        return null;
+      }
+    }
+  
+    // Haversine formula to calculate distance between two coordinates
+    function haversine(lat1, lon1, lat2, lon2) {
+      const toRad = (value) => (value * Math.PI) / 180;
+      const R = 6371; // Radius of Earth in km
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c; // Distance in km
+    }
+  
+    // Get city coordinates
+    const cityCoordinates = await getCityCoordinates(cityName);
+    if (!cityCoordinates) {
+      return [];
+    }
+  
+    const query = `
+      [out:json];
+      area[name="${cityName}"]->.searchArea;
+      (
+        way["waterway"](area.searchArea);
+        way["natural"="water"](area.searchArea);
+        node["natural"="water"](area.searchArea);
+      );
+      out body;
+      >;
+      out skel qt;
+    `;
+    const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+  
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+  
+      // Create a dictionary of nodes by their ID
+      const nodes = {};
+      data.elements.forEach((element) => {
+        if (element.type === "node") {
+          nodes[element.id] = {
+            lat: element.lat,
+            lon: element.lon,
+          };
+        }
+      });
+  
+      // Process water bodies
+      const waterBodies = data.elements
+        .filter((element) => element.type === "way" || element.type === "node")
+        .map((element) => {
+          if (element.type === "node") {
+            // Node: directly use lat/lon
+            const distance = haversine(cityCoordinates.lat, cityCoordinates.lon, element.lat, element.lon);
+            if (distance <= maxDistanceKm) {
+              return {
+                id: element.id,
+                name: element.tags?.name || "Unnamed",
+                type: element.tags?.natural || element.tags?.waterway,
+                distance, // Include distance for reference
+                coordinates: [{ lat: element.lat, lon: element.lon }],
+              };
+            }
+            return null;
+          }
+  
+          if (element.type === "way") {
+            // Way: resolve nodes to lat/lon
+            const coordinates = element.nodes
+              .map((nodeId) => nodes[nodeId]) // Map node IDs to lat/lon
+              .filter(Boolean); // Remove undefined nodes
+  
+            // Calculate average position of the way's nodes to determine distance
+            const avgLat = coordinates.reduce((sum, coord) => sum + coord.lat, 0) / coordinates.length;
+            const avgLon = coordinates.reduce((sum, coord) => sum + coord.lon, 0) / coordinates.length;
+            const distance = haversine(cityCoordinates.lat, cityCoordinates.lon, avgLat, avgLon);
+  
+            if (distance <= maxDistanceKm) {
+              return {
+                id: element.id,
+                name: element.tags?.name || "Unnamed",
+                type: element.tags?.natural || element.tags?.waterway,
+                distance, // Include distance for reference
+                coordinates,
+              };
+            }
+            return null;
+          }
+  
+          return null;
+        })
+        .filter(Boolean); // Remove null entries
+  
+     
+      return waterBodies;
+    } catch (error) {
+      console.error("Error fetching water bodies:", error);
+      return [];
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// searching city name and i am calling from city functionn to get water function 
 
 
   const Data_Searching = async(e) =>
   {
     if (e.key == "Enter") {
       let resp = await axios.get(`https://nominatim.openstreetmap.org/search?q=${data_from_user}&format=json&limit=1`)
+      let city_water_data = await all_water_place_find();  // callng function they  give water near data
+      
+      let city_loction_lat_And_lon_array = [] // empty array because i will send city loction and near city water loction
+     
+      let city_name_with_near_water_Data = [];  // city name with near water
 
-      let apidata=[Number(resp.data[0].lat),Number(resp.data[0].lon)]
-      dispatch(loction_taking_rudux(apidata))
+
+
+      // add city loctions  1 data from search by users
+
+      city_loction_lat_And_lon_array.push({lat:Number(resp.data[0].lat),lon: Number(resp.data[0].lon)})  // this is use for city loction
+     
+      //  add city name  1 data search by user city  name
+      city_name_with_near_water_Data.push(resp.data[0].display_name)
+
+
+
+      let show_only_few_data_from_data = [];  // store water data
+
+      for (let i = 0; i < 20; i++) // this is the limt of dta thats you are going to use
+      {
+      show_only_few_data_from_data .push(city_water_data[i]) 
+      }
+     
+     
+      
+      
+      // console.log(show_only_few_data_from_data)
+      for (let i of show_only_few_data_from_data)
+      {
+        // ab[10] data show karna ha 
+      
+        let all_near_city_name = i.name;
+
+      
+          
+        
+        let demo = i.coordinates[0];
+    
+
+        
+         
+        
+      
+        
+          
+        city_loction_lat_And_lon_array.push(demo);  // push city loction lat and lon
+        city_name_with_near_water_Data.push(all_near_city_name);
+
+
+
+      // ab[0].name 
+      // let c=ab[0].coordinates
+      // c[0].lat
+      // c[1].lon
+
+      }
+      
+
+      console.log(city_loction_lat_And_lon_array)
+      console.log(city_name_with_near_water_Data)
+
+
+
+
+      // loction data send to set for sendig to  rudux
+
+    
+      dispatch(loction_taking_rudux(city_loction_lat_And_lon_array))  // sending loction
+
+
+
+      // all near place name set to send to redux
+
+      let city_data = {
+     loc_name:city_name_with_near_water_Data
+      }
+
+
+      dispatch(city_name_set(city_data)) // seinding name
       console.log(resp)
       
     }
