@@ -128,7 +128,7 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
     if (!cityCoordinates) {
       return [];
     }
-  
+  //rr
     const query = `
       [out:json];
       area[name="${cityName}"]->.searchArea;
