@@ -18,11 +18,13 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import SearchCss from "./Search.module.css"  // for custom css styles
 import axios from "axios"
 import { FcGoogle } from "react-icons/fc";  // google icon for login and sign up
-
-
+import { GoogleOAuthProvider,GoogleLogin } from '@react-oauth/google';
+import Map from "../Map/Map";
 import { useDispatch } from 'react-redux'  // redux
 import { loction_taking_rudux,city_name_set} from '../../store_redux/Rudux_data'
 
+
+import Loading from "../Loading/Loading";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -71,18 +73,37 @@ function SearchFeatures() {
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 const [data_from_user,Set_data_from_user]=React.useState("Dehri");
 
+const [loading,setloding]=React.useState(false);
+
   
   
    const dispatch = useDispatch()  // for calling function from redux and send data to him
 
 
   const Data_processing_from_user = (e) => {
-    const { name, value } = e.target;
-    Set_data_from_user(value);
+    const { value } = e.target;
+    let val=value[0].toUpperCase()+value.substring(1,value.length).trim();
+    Set_data_from_user(val);
      
    
   };
 
+// this is use to show  data to the user from the goggle login
+
+  const gettingData=(data_get_from_google)=>
+  {
+    console.log(data_get_from_google)
+
+  }
+
+  // this  will br run whenb ever i will an errror from google login
+
+  const gettingError=(data_get_from_google)=>
+    {
+      console.log(data_get_from_google)
+  
+    }
+  
 
 // this is use to when ever the user type city name and enter then they search city near water
 
@@ -102,11 +123,17 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
             lon: parseFloat(data[0].lon),
           };
         }
-        throw new Error("City not found");
+
+        alert("City not found......")  // if city not found then
       } catch (error) {
-        console.error("Error fetching city coordinates:", error);
-        return null;
+        alert("Something Wrong")  // if api errror
+        console.error("Error fetching city coordinates:");
+       
+      
+
       }
+
+      
     }
   
     // Haversine formula to calculate distance between two coordinates
@@ -231,9 +258,25 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
   const Data_Searching = async(e) =>
   {
     if (e.key == "Enter") {
+
+
+
+      // this is modify the data like remove space and change into upper case
+     
+     
+   
+
+
+      
+      try {
+        
+    
+      setloding(true)
       let resp = await axios.get(`https://nominatim.openstreetmap.org/search?q=${data_from_user}&format=json&limit=1`)
       let city_water_data = await all_water_place_find();  // callng function they  give water near data
       
+
+      console.log(resp)
       let city_loction_lat_And_lon_array = [] // empty array because i will send city loction and near city water loction
      
       let city_name_with_near_water_Data = [];  // city name with near water
@@ -250,13 +293,19 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
 
 
       let show_only_few_data_from_data = [];  // store water data
+        
+      
+
+      // this use for if the near water data match then it will run
+      if(city_water_data.length>0)
+      {
 
       for (let i = 0; i < 20; i++) // this is the limt of dta thats you are going to use
       {
       show_only_few_data_from_data .push(city_water_data[i]) 
       }
      
-     
+    
       
       
       // console.log(show_only_few_data_from_data)
@@ -288,7 +337,10 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
       // c[0].lat
       // c[1].lon
 
+      setloding(false)
       }
+      }
+  
       
 
       console.log(city_loction_lat_And_lon_array)
@@ -315,6 +367,20 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
       console.log(resp)
       
     }
+    catch(err)
+    {
+      
+    
+      Set_data_from_user("Dehri")
+      setloding(false)
+    }
+
+  }
+
+
+
+    
+
   }
 
 
@@ -379,7 +445,15 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
           <MenuItem>
               
           <IconButton size="large"   >
-          <FcGoogle />
+          <GoogleOAuthProvider clientId="AIzaSyCY8VHdihLjE1oyxtOsz03nt2zfY-H9erI" >
+
+          <GoogleLogin
+  onSuccess={gettingData}
+  onError={gettingError}
+  
+/>;
+hii
+       </GoogleOAuthProvider>
               </IconButton>
               <p>Login</p>
           </MenuItem>
@@ -422,6 +496,7 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
   );
 
   return (
+    <div>
     <Box sx={{ flexGrow: 1 }} >
       <AppBar position="static" className={SearchCss.search_main_box}>
         <Toolbar>
@@ -512,6 +587,9 @@ const [data_from_user,Set_data_from_user]=React.useState("Dehri");
       {renderMobileMenu}
       {renderMenu}
     </Box>
+
+    {loading?<Loading/>: <Map/>}
+    </div>
   );
 }
 
