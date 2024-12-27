@@ -22,7 +22,7 @@ import { GoogleOAuthProvider,GoogleLogin } from '@react-oauth/google';
 import Map from "../Map/Map";
 import { useDispatch } from 'react-redux'  // redux
 import { loction_taking_rudux,city_name_set} from '../../store_redux/Rudux_data'
-
+import Footer  from "../Footer/Footer"
 
 import Loading from "../Loading/Loading";
 const Search = styled("div")(({ theme }) => ({
@@ -589,6 +589,8 @@ hii
     </Box>
 
     {loading?<Loading/>: <Map/>}
+
+    <Footer/>
     </div>
   );
 }

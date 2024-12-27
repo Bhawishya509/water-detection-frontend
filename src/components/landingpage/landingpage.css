@@ -1,0 +1,54 @@
+/* Fullscreen container for the video and button */
+.fullscreen-container {
+  position: relative;
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  overflow: hidden;
+
+}
+
+/* Fullscreen video styling */
+#waterVideo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Stretch to fill width */
+  height: 100%; /* Stretch to fill height */
+  object-fit: cover; /* Maintain aspect ratio while filling screen */
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Centered button styling */
+.fullscreen-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 15px 30px;
+  font-size: 18px;
+  color: white;
+  background-color: rgba(99, 248, 228, 0.7);
+  border: none;
+  border-radius: 5px;
+  opacity: 0.6;
+  cursor: pointer;
+  z-index: 2; /* Make sure it's above the video */
+  transition: background-color 0.3s;
+}
+
+.fullscreen-button:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Result text styling */
+#result {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 1.2em;
+  text-shadow: 0 0 10px black;
+  z-index: 2;
+}
