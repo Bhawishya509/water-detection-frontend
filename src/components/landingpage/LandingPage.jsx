@@ -14,9 +14,14 @@ function LandingPage() {
   return (
     <div className="fullscreen-container">
       {/* Fullscreen Video */}
-      <video id="waterVideo" src="/src/components/landingpage/video/landingvideo.mp4" autoPlay muted loop>
+      {/* <video id="waterVideo" src="/src/components/landingpage/video/landingvideo.mp4" autoPlay muted loop>
+        Your browser does not support the video tag.
+      </video> */}
+
+<video id="waterVideo" src="video/landingvideo.mp4" autoPlay muted loop>
         Your browser does not support the video tag.
       </video>
+
 
       {/* Centered Button */}
       <button className="fullscreen-button" onClick={analyzeWater}>
