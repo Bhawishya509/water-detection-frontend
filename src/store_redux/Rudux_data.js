@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  value: [{lat:24.927735, lon: 84.190984}],  // this is default dehri on sone lat and lon
-  city_and_near_loction_name:["DEHRI"]
+  value: [{lat:"", lon:""}],  // this is default dehri on sone lat and lon
+  city_and_near_loction_name:[""]
 }
 
 
@@ -29,7 +29,7 @@ export const counterSlice = createSlice({
       
     loction_taking_rudux: (state, action) => {
       // state.value = action.payload
-      
+      console.log(action.payload)
       state.value = action.payload;
   
     },

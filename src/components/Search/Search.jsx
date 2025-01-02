@@ -71,7 +71,7 @@ function SearchFeatures() {
  
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-const [data_from_user,Set_data_from_user]=React.useState("Dehri");
+const [data_from_user,Set_data_from_user]=React.useState("");
 
 const [loading,setloding]=React.useState(false);
 
@@ -125,6 +125,11 @@ const [loading,setloding]=React.useState(false);
         }
 
         alert("City not found......")  // if city not found then
+        
+
+
+
+
       } catch (error) {
         alert("Something Wrong")  // if api errror
         console.error("Error fetching city coordinates:");
@@ -272,10 +277,22 @@ const [loading,setloding]=React.useState(false);
         
     
       setloding(true)
-      let resp = await axios.get(`https://nominatim.openstreetmap.org/search?q=${data_from_user}&format=json&limit=1`)
+
+  
+
+      let demo = data_from_user
+      .split(" ")
+      .map((item) => item[0].toUpperCase() + item.slice(1))
+      .join(" ");
+    
+      // Set_data_from_user( demo)
+      console.log("demo",demo)
+      // Set_data_from_user(demo)
+
+      let resp = await axios.get(`https://nominatim.openstreetmap.org/search?q=${demo}&format=json&limit=1`)
       let city_water_data = await all_water_place_find();  // callng function they  give water near data
       
-
+    
       console.log(resp)
       let city_loction_lat_And_lon_array = [] // empty array because i will send city loction and near city water loction
      
@@ -336,14 +353,14 @@ const [loading,setloding]=React.useState(false);
       // let c=ab[0].coordinates
       // c[0].lat
       // c[1].lon
-
-      setloding(false)
       }
+      setloding(false)
+      
       }
   
       
 
-      console.log(city_loction_lat_And_lon_array)
+      console.log(city_loction_lat_And_lon_array)   // aaray
       console.log(city_name_with_near_water_Data)
 
 
@@ -370,6 +387,7 @@ const [loading,setloding]=React.useState(false);
     catch(err)
     {
       
+      console.log('there is something')
     
       Set_data_from_user("Dehri")
       setloding(false)
@@ -462,7 +480,7 @@ hii
           <MenuItem>
              
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
+          <Badge badgeContent={0} color="error">
             <MailIcon />
           </Badge>
         </IconButton>
@@ -474,7 +492,7 @@ hii
           aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
+          <Badge badgeContent={0} color="error">
             <NotificationsIcon />
           </Badge>
         </IconButton>
@@ -543,7 +561,7 @@ hii
                       >
                           
                           
-                          <Badge badgeContent={4} color="error">
+                          <Badge badgeContent={0} color="error">
                               
                 <MailIcon />
                           </Badge>
@@ -554,7 +572,7 @@ hii
               aria-label="show 17 new notifications"
               color="inherit"
             >
-              <Badge badgeContent={17} color="error">
+              <Badge badgeContent={0} color="error">
                 <NotificationsIcon />
               </Badge>
             </IconButton>

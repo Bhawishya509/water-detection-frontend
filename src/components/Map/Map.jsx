@@ -20,7 +20,9 @@ const Map = () => {
 
   const cityname = useSelector((state) => state.location.city_and_near_loction_name); 
 
-  const value=[24.9142734,84.1862208]
+  // const value=[24.9142734,84.1862208]  this is for default loction
+
+  const value=[]
 
   console.log(locationLatLon);
   console.log(cityname);
@@ -32,7 +34,7 @@ const Map = () => {
     iconSize: [38, 38]
   })
 
-  // console.log(locationLatLon[0].lat, locationLatLon[0].lon)
+  console.log(locationLatLon[0].lat, locationLatLon[0].lon)
   return (
     <main className={mapCss.map_main_container}>
       

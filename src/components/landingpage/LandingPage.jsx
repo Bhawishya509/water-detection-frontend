@@ -18,7 +18,7 @@ function LandingPage() {
         Your browser does not support the video tag.
       </video> */}
 
-<video id="waterVideo" src="video/landingvideo.mp4" autoPlay muted loop>
+<video id="waterVideo" src="video/landingvideo.mp4" autoPlay muted loop  onClick={analyzeWater}>
         Your browser does not support the video tag.
       </video>
 
